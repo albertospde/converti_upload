@@ -515,11 +515,19 @@
     </div>
   </div>
 
-  <div class="field-row" style="margin-top:16px;">
-    <label for="nomeFile">Nome file output (senza estensione)</label>
-    <input type="text" id="nomeFile" placeholder="es. ordine_cineteca_giugno" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:0.95rem;padding:10px 14px;width:100%;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-  </div>
+  <div class="field-row" style="margin-top:20px;">
+    <label for="nOrdManuale">N. ordine cliente (fallback — usato solo se la riga del file non ha già un valore)</label>
     <input type="text" id="nOrdManuale" placeholder="es. ORD-2026-001" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:0.95rem;padding:10px 14px;width:100%;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+  </div>
+
+</div>
+
+<!-- STEP 2b: Nome file -->
+<div class="card">
+  <div class="card-title">2b · Nome file output</div>
+  <div class="field-row">
+    <label for="nomeFile">Nome file (senza estensione — lascia vuoto per usare la data)</label>
+    <input type="text" id="nomeFile" placeholder="es. ordine_cineteca_giugno" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:0.95rem;padding:10px 14px;width:100%;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
   </div>
 </div>
 
