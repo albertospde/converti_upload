@@ -500,7 +500,7 @@
     </select>
   </div>
 
-  <div class="options-grid">
+  <div class="options-grid" style="margin-top:16px;">
     <div class="checkbox-row">
       <input type="checkbox" id="inclScontoOcc" checked>
       <span>Includi sconto occasionale</span>
@@ -510,13 +510,14 @@
       <span>Includi pagamento occasionale</span>
     </div>
     <div class="checkbox-row">
-      <input type="checkbox" id="inclNOrdCliente" checked>
-      <span>Includi N. ordine cliente</span>
-    </div>
-    <div class="checkbox-row">
       <input type="checkbox" id="skipZeroQty" checked>
       <span>Salta righe con quantità = 0</span>
     </div>
+  </div>
+
+  <div class="field-row" style="margin-top:20px;">
+    <label for="nOrdManuale">N. ordine cliente (fallback — usato solo se la riga del file non ha già un valore)</label>
+    <input type="text" id="nOrdManuale" placeholder="es. ORD-2026-001" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:0.95rem;padding:10px 14px;width:100%;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
   </div>
 </div>
 
@@ -602,8 +603,8 @@ document.getElementById('btnConverti').addEventListener('click', () => {
 
   const inclScontoOcc = document.getElementById('inclScontoOcc').checked;
   const inclPagOcc = document.getElementById('inclPagOcc').checked;
-  const inclNOrd = document.getElementById('inclNOrdCliente').checked;
   const skipZero = document.getElementById('skipZeroQty').checked;
+  const nOrdManuale = document.getElementById('nOrdManuale').value.trim();
 
   const header = parsedData[0];
 
@@ -615,9 +616,7 @@ document.getElementById('btnConverti').addEventListener('click', () => {
     copie:         ['Pren (Qtà)'],
     scontoOcc:     ['Sconto occasionale'],
     pagOcc:        ['Pag(occ)', 'Pag(Occ)', 'Pag (occ)'],
-    scAnagr:       ['Sc anagr'],
     nOrdCliente:   ['N. ordine cliente', 'N.ordine cliente'],
-    codCampagna:   ["N° cedola", "N. cedola"],
     qtaTrasm:      ['Qtà trasmessa'],
   };
 
@@ -650,13 +649,13 @@ document.getElementById('btnConverti').addEventListener('click', () => {
 
     const scontoOcc = inclScontoOcc ? (parseFloat(row[idx.scontoOcc]) || '') : '';
     const pagOcc = inclPagOcc ? (parseFloat(row[idx.pagOcc]) || '') : '';
-    const nOrdCliente = inclNOrd ? (String(row[idx.nOrdCliente] || '')).trim() : '';
-    const codCampagna = idx.codCampagna !== undefined ? String(row[idx.codCampagna] || '').trim() : '';
+    // N. ordine cliente: usa il valore del file se presente, altrimenti il fallback manuale
+    const nOrdDaFile = idx.nOrdCliente !== undefined ? String(row[idx.nOrdCliente] || '').trim() : '';
+    const nOrdCliente = nOrdDaFile !== '' ? nOrdDaFile : nOrdManuale;
 
     outputRows.push({
       'Cod. cliente': codCliente,
       'Tipo ordine': tipoOrdine,
-      'Cod. campagna': codCampagna,
       'EAN': ean,
       'Copie': copie,
       'Sovrasc. occas.': scontoOcc,
@@ -705,25 +704,25 @@ document.getElementById('btnConverti').addEventListener('click', () => {
       'Nuovo destinatario - Nazione'
     ],
     ...outputRows.map(r => [
-      r['Cod. cliente'],
-      r['Tipo ordine'],
-      '',
-      r['Cod. campagna'],
-      r['EAN'],
-      r['Copie'],
-      r['Sovrasc. occas.'],
-      r['Pag. occas.'],
-      r['N. ord. Cliente'],
-      r['Tenuta prenotazioni S/N'],
-      r['Data consegna tassativa'],
-      r['Motivo tassativa'],
-      r['Nota di testata'],
-      r['Nuovo dest. - Ragione sociale'],
-      r['Nuovo dest. - Indirizzo'],
-      r['Nuovo dest. - Località'],
-      r['Nuovo dest. - CAP'],
-      r['Nuovo dest. - Provincia'],
-      r['Nuovo dest. - Nazione'],
+      r['Cod. cliente'],   // A
+      r['Tipo ordine'],    // B
+      '',                  // C — sempre vuota
+      '',                  // D — Cod. campagna sempre vuota
+      r['EAN'],            // E
+      r['Copie'],          // F
+      r['Sovrasc. occas.'],// G
+      r['Pag. occas.'],    // H
+      r['N. ord. Cliente'],// I
+      '',                  // J
+      '',                  // K
+      '',                  // L
+      '',                  // M
+      '',                  // N
+      '',                  // O
+      '',                  // P
+      '',                  // Q
+      '',                  // R
+      '',                  // S
     ])
   ];
 
@@ -773,7 +772,7 @@ function mostraAnteprima(rows, skipped) {
   `;
 
   const previewRows = rows.slice(0, 10);
-  const cols = ['Cod. cliente','Tipo ordine','Cod. campagna','EAN','Copie','Sovrasc. occas.','Pag. occas.','N. ord. Cliente'];
+  const cols = ['Cod. cliente','Tipo ordine','EAN','Copie','Sovrasc. occas.','Pag. occas.','N. ord. Cliente'];
 
   const tbl = document.createElement('table');
   const thead = tbl.createTHead();
