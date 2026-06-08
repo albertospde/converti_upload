@@ -527,6 +527,7 @@
   <div class="btn-row">
     <button class="btn btn-primary" id="btnConverti" disabled>⚙ Converti</button>
     <button class="btn btn-secondary" id="btnScarica" disabled>⬇ Scarica XLSX</button>
+    <button class="btn btn-secondary" id="btnReset">↺ Reset</button>
   </div>
   <div class="status-box" id="statusBox"></div>
 </div>
@@ -684,11 +685,10 @@ document.getElementById('btnConverti').addEventListener('click', () => {
   const wsData = [
     [
       'Cod. cliente \n(max 10 caratteri)',
-      'Tipo ordine \n(vd elenco)',
-      '',
+      'Tipo ordine \n(vd elenco)                                      ',
       'Cod. campagna\n(max 8 caratteri)',
       'EAN',
-      'Copie',
+      'Copie ',
       'Sovrasc. occas.',
       'Pag. occas.',
       'N. ord. Cliente \n(max 30 caratteri)',
@@ -704,25 +704,15 @@ document.getElementById('btnConverti').addEventListener('click', () => {
       'Nuovo destinatario - Nazione'
     ],
     ...outputRows.map(r => [
-      r['Cod. cliente'],   // A
-      r['Tipo ordine'],    // B
-      '',                  // C — sempre vuota
-      '',                  // D — Cod. campagna sempre vuota
-      r['EAN'],            // E
-      r['Copie'],          // F
-      r['Sovrasc. occas.'],// G
-      r['Pag. occas.'],    // H
-      r['N. ord. Cliente'],// I
-      '',                  // J
-      '',                  // K
-      '',                  // L
-      '',                  // M
-      '',                  // N
-      '',                  // O
-      '',                  // P
-      '',                  // Q
-      '',                  // R
-      '',                  // S
+      r['Cod. cliente'],    // A
+      r['Tipo ordine'],     // B
+      '',                   // C — Cod. campagna sempre vuota
+      r['EAN'],             // D
+      r['Copie'],           // E
+      r['Sovrasc. occas.'], // F
+      r['Pag. occas.'],     // G
+      r['N. ord. Cliente'], // H
+      '', '', '', '', '', '', '', '', '', ''
     ])
   ];
 
@@ -798,6 +788,26 @@ function mostraAnteprima(rows, skipped) {
     wrap.appendChild(note);
   }
 }
+
+// --- Reset ---
+document.getElementById('btnReset').addEventListener('click', () => {
+  parsedData = null;
+  outputWorkbook = null;
+  fileInput.value = '';
+  fileChosen.style.display = 'none';
+  fileChosen.textContent = '';
+  document.getElementById('tipoOrdine').value = '';
+  document.getElementById('nOrdManuale').value = '';
+  document.getElementById('inclScontoOcc').checked = true;
+  document.getElementById('inclPagOcc').checked = true;
+  document.getElementById('skipZeroQty').checked = true;
+  document.getElementById('btnConverti').disabled = true;
+  document.getElementById('btnScarica').disabled = true;
+  document.getElementById('previewCard').style.display = 'none';
+  const box = document.getElementById('statusBox');
+  box.innerHTML = '';
+  box.classList.remove('visible');
+});
 
 // --- Scarica ---
 document.getElementById('btnScarica').addEventListener('click', () => {
