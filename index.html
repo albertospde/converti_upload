@@ -398,6 +398,120 @@
 
   tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
 
+  /* ---- SELEZIONE EAN ---- */
+  #eanPanel { display: none; }
+
+  .ean-search-wrap {
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .ean-search-wrap input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 9px 36px 9px 14px;
+    transition: border-color 0.2s;
+  }
+  .ean-search-wrap input:focus { outline: none; border-color: var(--accent); }
+  .ean-search-clear {
+    position: absolute;
+    right: 10px; top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    user-select: none;
+  }
+  .ean-search-clear:hover { color: var(--text); }
+
+  .ean-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ean-toolbar button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: var(--radius);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.18s;
+  }
+  .ean-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+  .ean-count {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  .ean-list {
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+  }
+  .ean-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .ean-item:last-child { border-bottom: none; }
+  .ean-item:hover { background: var(--surface2); }
+  .ean-item.selected { background: rgba(0,180,232,0.08); }
+  .ean-item input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 15px; height: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .ean-item-ean {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 110px;
+  }
+  .ean-item-title {
+    font-size: 0.85rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ean-item-qty {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .ean-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
   .badge {
     display: inline-block;
     padding: 2px 8px;
@@ -480,6 +594,21 @@
   </div>
 </div>
 
+<!-- STEP 1b: Selezione EAN -->
+<div class="card" id="eanPanel">
+  <div class="card-title">1b · Seleziona titoli da convertire</div>
+  <div class="ean-search-wrap">
+    <input type="text" id="eanSearch" placeholder="Cerca per EAN o titolo…" autocomplete="off">
+    <span class="ean-search-clear" id="eanSearchClear" title="Cancella ricerca">✕</span>
+  </div>
+  <div class="ean-toolbar">
+    <button id="btnSelAll">Seleziona tutti</button>
+    <button id="btnDeselAll">Deseleziona tutti</button>
+    <span class="ean-count" id="eanCount"></span>
+  </div>
+  <div class="ean-list" id="eanList"></div>
+</div>
+
 <!-- STEP 2: Opzioni -->
 <div class="card">
   <div class="card-title">2 · Parametri di conversione</div>
@@ -553,6 +682,8 @@
 const TEMPLATE_B64 = "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";
 let parsedData = null;
 let outputWorkbook = null;
+let eanItems = [];
+let eanFilter = '';
 
 // --- Drag & Drop ---
 const dropZone = document.getElementById('dropZone');
@@ -581,10 +712,106 @@ function handleFile(file) {
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
     parsedData = rows;
     log('info', `File caricato: ${file.name} — ${rows.length - 1} righe dati`);
+    buildEanPanel(rows);
     document.getElementById('btnConverti').disabled = false;
   };
   reader.readAsArrayBuffer(file);
 }
+
+// ---- Pannello selezione EAN ----
+function buildEanPanel(rows) {
+  const header = rows[0];
+  const idxEan   = header.findIndex(h => String(h).trim() === 'EAN');
+  const idxTit   = header.findIndex(h => /titolo|title/i.test(String(h).trim()));
+  const idxCopie = header.findIndex(h => String(h).trim() === 'Pren (Qtà)');
+
+  if (idxEan === -1) { log('warn', 'Colonna EAN non trovata: selezione EAN non disponibile.'); return; }
+
+  // Aggrega per EAN (un EAN può comparire su più righe/clienti)
+  const map = new Map();
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const ean = String(row[idxEan] || '').trim();
+    if (!ean) continue;
+    const titolo = idxTit !== -1 ? String(row[idxTit] || '').trim() : '';
+    const qty    = parseFloat(row[idxCopie]) || 0;
+    if (map.has(ean)) {
+      map.get(ean).qty += qty;
+    } else {
+      map.set(ean, { ean, titolo, qty });
+    }
+  }
+
+  eanItems = Array.from(map.values()).map(it => ({ ...it, selected: true }));
+  eanFilter = '';
+  document.getElementById('eanSearch').value = '';
+  renderEanList();
+  document.getElementById('eanPanel').style.display = 'block';
+}
+
+function renderEanList() {
+  const q = eanFilter.toLowerCase();
+  const filtered = eanItems.filter(it =>
+    it.ean.includes(q) || it.titolo.toLowerCase().includes(q)
+  );
+  const selCount = eanItems.filter(it => it.selected).length;
+  document.getElementById('eanCount').textContent =
+    `${selCount} / ${eanItems.length} selezionati`;
+
+  const list = document.getElementById('eanList');
+  list.innerHTML = '';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="ean-empty">Nessun risultato.</div>';
+    return;
+  }
+
+  filtered.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'ean-item' + (item.selected ? ' selected' : '');
+    div.innerHTML = `
+      <input type="checkbox" ${item.selected ? 'checked' : ''}>
+      <span class="ean-item-ean">${item.ean}</span>
+      <span class="ean-item-title">${item.titolo || '—'}</span>
+      <span class="ean-item-qty">${item.qty > 0 ? item.qty + ' cp' : ''}</span>
+    `;
+    const cb = div.querySelector('input');
+    const toggle = () => {
+      item.selected = !item.selected;
+      cb.checked = item.selected;
+      div.classList.toggle('selected', item.selected);
+      document.getElementById('eanCount').textContent =
+        `${eanItems.filter(i => i.selected).length} / ${eanItems.length} selezionati`;
+    };
+    cb.addEventListener('change', toggle);
+    div.addEventListener('click', e => { if (e.target !== cb) toggle(); });
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('eanSearch').addEventListener('input', function() {
+  eanFilter = this.value.trim();
+  renderEanList();
+});
+document.getElementById('eanSearchClear').addEventListener('click', () => {
+  eanFilter = '';
+  document.getElementById('eanSearch').value = '';
+  renderEanList();
+});
+document.getElementById('btnSelAll').addEventListener('click', () => {
+  const q = eanFilter.toLowerCase();
+  eanItems.forEach(it => {
+    if (it.ean.includes(q) || it.titolo.toLowerCase().includes(q)) it.selected = true;
+  });
+  renderEanList();
+});
+document.getElementById('btnDeselAll').addEventListener('click', () => {
+  const q = eanFilter.toLowerCase();
+  eanItems.forEach(it => {
+    if (it.ean.includes(q) || it.titolo.toLowerCase().includes(q)) it.selected = false;
+  });
+  renderEanList();
+});
 
 // --- Log ---
 function log(type, msg) {
@@ -645,6 +872,15 @@ document.getElementById('btnConverti').addEventListener('click', () => {
   if (idx.ean === undefined) { log('err', 'Colonna "EAN" non trovata.'); return; }
   if (idx.copie === undefined) { log('err', 'Colonna "Pren (Qtà)" non trovata.'); return; }
 
+  // Set degli EAN selezionati (se pannello attivo)
+  const selectedEans = eanItems.length > 0
+    ? new Set(eanItems.filter(it => it.selected).map(it => it.ean))
+    : null;
+
+  if (selectedEans !== null && selectedEans.size === 0) {
+    log('err', 'Nessun EAN selezionato. Seleziona almeno un titolo.'); return;
+  }
+
   const outputRows = [];
   let skipped = 0;
 
@@ -655,6 +891,9 @@ document.getElementById('btnConverti').addEventListener('click', () => {
     const codCliente = String(row[idx.codCliente] || '').trim();
     const ean = String(row[idx.ean] || '').trim();
     if (!codCliente && !ean) continue;
+
+    // Filtra per EAN selezionati
+    if (selectedEans !== null && !selectedEans.has(ean)) continue;
 
     const copie = parseFloat(row[idx.copie]) || 0;
     if (skipZero && copie === 0) { skipped++; continue; }
@@ -768,9 +1007,15 @@ function mostraAnteprima(rows, skipped) {
 document.getElementById('btnReset').addEventListener('click', () => {
   parsedData = null;
   outputWorkbook = null;
+  eanItems = [];
+  eanFilter = '';
   fileInput.value = '';
   fileChosen.style.display = 'none';
   fileChosen.textContent = '';
+  document.getElementById('eanPanel').style.display = 'none';
+  document.getElementById('eanList').innerHTML = '';
+  document.getElementById('eanSearch').value = '';
+  document.getElementById('eanCount').textContent = '';
   document.getElementById('tipoOrdine').value = '';
   document.getElementById('nomeFile').value = '';
   document.getElementById('nOrdManuale').value = '';
